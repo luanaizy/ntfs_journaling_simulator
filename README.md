@@ -27,12 +27,12 @@ Simulator made for final work of the subject of operating systems
 
    Faça isso **sempre que for mexer no projeto**, para usar as bibliotecas do ambiente virtual (`.venv`).
 
-   
-   Se estiver usando o VSCode, configure para usar o ambiente virtual .venv que criou, em vez do Python instalado no sistema:
+
+   Se estiver usando o VSCode, configure para **usar o ambiente virtual .venv que criou**, em vez do Python instalado no sistema:
 
    - Pressione Ctrl + Shift + P para abrir a paleta de comandos.
 
-   - Digite e selecione: "Python: Select Interpreter"
+   - Digite e selecione: ">Python: Select Interpreter"
 
    - Selecione o interpretador correspondente a .venv (algo como):
     ```
