@@ -3,7 +3,6 @@ from filesystem import FileSystem
 def main():
     fs = FileSystem()
 
-    # Usuários
     admin = "admin"
     joao = "joao"
     maria = "maria"

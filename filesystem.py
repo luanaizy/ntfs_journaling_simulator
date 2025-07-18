@@ -35,10 +35,10 @@ class Directory:
 
 class JournalEntry:
     def __init__(self, action, target, content=None, user=None):
-        self.action = action  # 'create', 'delete'
-        self.target = target  # caminho ex: '/root/docs/arquivo.txt'
-        self.content = content  # conteúdo do arquivo
-        self.user = user  # quem fez a operação
+        self.action = action  # string, 'create', 'delete'
+        self.target = target  # string , exemplo: '/root/docs/arquivo.txt'
+        self.content = content  # string, conteúdo do arquivo
+        self.user = user  # string, quem fez a operação
 
 
 class FileSystem:
@@ -95,7 +95,8 @@ class FileSystem:
                 self._replay_create(entry)
             elif entry.action == 'delete':
                 self._replay_delete(entry)
-        print("Recuperação concluída.")
+        print("[RECUPERAÇÃO CONCLUÍDA]")
+        print("\n")
 
     def _replay_create(self, entry):
         parent_dir, filename = self._navigate_to_dir(entry.target)
