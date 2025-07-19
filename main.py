@@ -9,7 +9,8 @@ def main():
 
     print("\n====== INÍCIO DA SIMULAÇÃO ======\n")
 
-    # Admin cria arquivos
+    # Admin cria diretórios e arquivos
+    fs.create_directory("/root/projetos")
     fs.create_file("/root/projetos/projeto1.txt", "documentação inicial", user=admin)
     fs.create_file("/root/projetos/projeto2.txt", "progresso", user=admin)
 
@@ -31,16 +32,10 @@ def main():
     # Admin remove arquivo
     fs.delete_file("/root/projetos/projeto2.txt", user=admin)
 
-    # Salva log de operações antes da "queda"
-    fs.salvar_log_em_arquivo()
-
-    print("\n*** SIMULANDO FALHA DO SISTEMA ***\n")
-
-    # Simula falha e recuperação
+    print("\n*** SIMULANDO FALHA ***\n")
     fs.simulate_crash_and_recovery()
 
     print("\n*** VERIFICAÇÃO PÓS-RECUPERAÇÃO ***\n")
-    # Verifica leitura após recuperação
     fs.read_file("/root/projetos/projeto1.txt", user=joao)
     fs.read_file("/root/projetos/projeto2.txt", user=maria)
 
