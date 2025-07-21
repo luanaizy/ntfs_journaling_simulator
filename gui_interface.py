@@ -3,20 +3,34 @@ from tkinter import ttk, scrolledtext, messagebox, simpledialog
 from filesystem import FileSystem
 
 class NTFSJournalingSimulatorGUI:
+    """Interface gráfica para o simulador de sistema de arquivos com journaling"""
+
     def __init__(self, root):
+        """
+        Inicializa a interface gráfica
+        Args:
+            root: Janela principal do Tkinter
+        """
+        
         self.root = root
         self.root.title("NTFS Journaling Simulator")
         self.root.geometry("1000x700")
+        
+        # Inicializa o sistema de arquivos e variáveis de estado
         self.fs = FileSystem()
         self.current_path = "/"
         self.current_user = "admin"
         self.selected_file = None
 
+        # Configura a interface e atualiza os componentes
         self.create_widgets()
         self.update_file_list()
         self.update_journal()
 
     def create_widgets(self):
+        """Cria e organiza todos os componentes da interface gráfica"""
+
+        # Frame superior para controles de navegação
         top_frame = ttk.Frame(self.root)
         top_frame.pack(fill=tk.X, padx=10, pady=5)
 
@@ -31,6 +45,7 @@ class NTFSJournalingSimulatorGUI:
         
         ttk.Button(user_frame, text="Mudar", command=self.change_user).pack(side=tk.LEFT)
 
+        # Controle de caminho/navegação
         ttk.Label(top_frame, text=" Caminho:").pack(side=tk.LEFT)
         self.path_var = tk.StringVar(value=self.current_path)
         path_entry = ttk.Entry(top_frame, textvariable=self.path_var, width=40)
@@ -39,9 +54,11 @@ class NTFSJournalingSimulatorGUI:
 
         ttk.Button(top_frame, text="Voltar", command=self.go_back).pack(side=tk.LEFT, padx=5)
 
+        # Barra de botões principais
         button_frame = ttk.Frame(self.root)
         button_frame.pack(fill=tk.X, padx=10)
 
+        # Botões de operações
         ttk.Button(button_frame, text="Novo Arquivo", command=self.create_file).pack(side=tk.LEFT)
         ttk.Button(button_frame, text="Novo Diretório", command=self.create_directory).pack(side=tk.LEFT)
         ttk.Button(button_frame, text="Editar Conteúdo", command=self.edit_content).pack(side=tk.LEFT)
@@ -50,6 +67,7 @@ class NTFSJournalingSimulatorGUI:
         ttk.Button(button_frame, text="Permissão", command=self.apply_permission).pack(side=tk.LEFT)
         ttk.Button(button_frame, text="Simular Falha", command=self.simulate_crash).pack(side=tk.LEFT)
 
+        # Árvore de visualização de arquivos
         self.file_tree = ttk.Treeview(self.root, columns=("Nome", "Tipo", "Permissões"), show="headings")
         self.file_tree.heading("Nome", text="Nome")
         self.file_tree.heading("Tipo", text="Tipo")
@@ -58,14 +76,18 @@ class NTFSJournalingSimulatorGUI:
         self.file_tree.bind("<<TreeviewSelect>>", self.on_file_select)
         self.file_tree.bind("<Double-1>", self.on_item_double_click)
 
+        # Área de visualização do journal
         self.journal_text = scrolledtext.ScrolledText(self.root, height=10, state=tk.DISABLED)
         self.journal_text.pack(fill=tk.BOTH, expand=True, padx=10, pady=5)
-
+        
+        # Barra de status
         self.status_var = tk.StringVar()
         status_bar = ttk.Label(self.root, textvariable=self.status_var, relief=tk.SUNKEN, anchor=tk.W)
         status_bar.pack(fill=tk.X)
 
     def change_user(self):
+        """Altera o usuário atual do sistema"""
+        
         new_user = self.user_var.get().strip()
         if not new_user:
             messagebox.showerror("Erro", "Nome de usuário não pode ser vazio")
@@ -77,6 +99,8 @@ class NTFSJournalingSimulatorGUI:
         self.selected_file = None
 
     def change_directory(self):
+        """Muda o diretório atual para o caminho especificado"""
+                
         new_path = self.path_var.get()
         if self.fs.directory_exists(new_path):
             self.current_path = new_path
@@ -86,6 +110,8 @@ class NTFSJournalingSimulatorGUI:
             messagebox.showerror("Erro", f"Diretório '{new_path}' não encontrado")
 
     def go_back(self):
+        """Navega para o diretório pai"""
+
         if self.current_path == "/":
             return
         parts = self.current_path.rstrip("/").split("/")
@@ -94,17 +120,22 @@ class NTFSJournalingSimulatorGUI:
         self.change_directory()
 
     def update_file_list(self):
+        """Atualiza a lista de arquivos/diretórios exibida"""
+
         self.file_tree.delete(*self.file_tree.get_children())
         
+        # Obtém o diretório atual
         if self.current_path == "/":
             current_dir = self.fs.root
         else:
             parent_dir, dirname = self.fs._navigate_to_dir(self.current_path)
             current_dir = parent_dir.find_subdir(dirname) if dirname else parent_dir
 
+        # Adiciona subdiretórios à lista
         for d in current_dir.subdirectories:
             self.file_tree.insert("", "end", values=(d.name, "<DIR>", ""))
         
+        # Adiciona arquivos à lista, verificando permissões
         for f in current_dir.files:
             if self.can_read_file(f):
                 perms = ", ".join([f"{u}:{p}" for u, p in f.acl.items()])
@@ -115,18 +146,24 @@ class NTFSJournalingSimulatorGUI:
         self.file_tree.tag_configure('denied', foreground='gray')
 
     def can_read_file(self, file):
+        """Verifica se o usuário atual tem permissão de leitura no arquivo"""
+        
         if self.current_user == "admin":
             return True
         permission = file.get_permission(self.current_user)
         return permission in ['r', 'rw']
 
     def can_write_file(self, file):
+        """Verifica se o usuário atual tem permissão de escrita no arquivo"""
+
         if self.current_user == "admin":
             return True
         permission = file.get_permission(self.current_user)
         return permission in ['w', 'rw']
 
     def on_file_select(self, event):
+        """Manipula a seleção de um item na lista de arquivos"""
+                
         selected = self.file_tree.focus()
         if not selected:
             return
@@ -140,6 +177,8 @@ class NTFSJournalingSimulatorGUI:
             self.update_status(f"Arquivo selecionado: {name}")
 
     def update_journal(self):
+        """Atualiza a visualização do journal com as operações recentes"""
+
         self.journal_text.config(state=tk.NORMAL)
         self.journal_text.delete(1.0, tk.END)
         
@@ -156,9 +195,13 @@ class NTFSJournalingSimulatorGUI:
         self.journal_text.config(state=tk.DISABLED)
 
     def update_status(self, message):
+        """Atualiza a mensagem na barra de status"""
+        
         self.status_var.set(message)
 
     def on_item_double_click(self, event):
+        """Manipula o duplo clique em um item (para navegar em diretórios)"""
+
         selected = self.file_tree.focus()
         if not selected:
             return
@@ -173,6 +216,8 @@ class NTFSJournalingSimulatorGUI:
             self.change_directory()
 
     def create_file(self):
+        """Cria um novo arquivo no diretório atual"""
+                
         name = simpledialog.askstring("Novo Arquivo", "Nome do arquivo:")
         if name:
             path = f"{self.current_path.rstrip('/')}/{name}"
@@ -180,6 +225,7 @@ class NTFSJournalingSimulatorGUI:
             self.update_file_list()
             self.update_journal()
             
+            # Pergunta se deseja adicionar conteúdo imediatamente
             if messagebox.askyesno("Conteúdo", "Deseja adicionar conteúdo ao arquivo agora?"):
                 content = simpledialog.askstring("Conteúdo", f"Conteúdo para {name}:")
                 if content is not None:
@@ -189,6 +235,8 @@ class NTFSJournalingSimulatorGUI:
                     self.update_status(f"Conteúdo adicionado ao arquivo '{name}'")
 
     def create_directory(self):
+        """Cria um novo diretório no diretório atual"""
+
         name = simpledialog.askstring("Novo Diretório", "Nome do diretório:")
         if name:
             path = f"{self.current_path.rstrip('/')}/{name}"
@@ -197,10 +245,13 @@ class NTFSJournalingSimulatorGUI:
             self.update_journal()
 
     def edit_content(self):
+        """Abre uma janela para edição do conteúdo do arquivo selecionado"""
+
         if not self.selected_file:
             messagebox.showerror("Erro", "Nenhum arquivo selecionado")
             return
-            
+        
+        # Obtém o diretório atual
         if self.current_path == "/":
             current_dir = self.fs.root
         else:
@@ -216,7 +267,8 @@ class NTFSJournalingSimulatorGUI:
         if not self.can_write_file(file):
             messagebox.showerror("Erro", "Você não tem permissão para editar este arquivo")
             return
-            
+
+        # Cria janela de edição   
         edit_window = tk.Toplevel(self.root)
         edit_window.title(f"Editando: {self.selected_file}")
         edit_window.geometry("800x600")
@@ -224,10 +276,12 @@ class NTFSJournalingSimulatorGUI:
         main_frame = ttk.Frame(edit_window)
         main_frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
         
+        # Área de texto editável
         content_text = scrolledtext.ScrolledText(main_frame, wrap=tk.WORD)
         content_text.pack(fill=tk.BOTH, expand=True)
         content_text.insert(tk.END, file.content if file.content else "")
         
+        # Botões da janela de edição
         button_frame = ttk.Frame(main_frame)
         button_frame.pack(fill=tk.X, pady=5)
         
@@ -238,6 +292,8 @@ class NTFSJournalingSimulatorGUI:
                  command=edit_window.destroy).pack(side=tk.RIGHT, padx=5)
 
     def save_edited_content(self, content_text, edit_window):
+        """Salva as alterações feitas no conteúdo do arquivo"""
+
         new_content = content_text.get(1.0, tk.END).strip()
         path = f"{self.current_path.rstrip('/')}/{self.selected_file}"
         self.fs.write_file(path, new_content, user=self.current_user)
@@ -247,10 +303,13 @@ class NTFSJournalingSimulatorGUI:
         self.update_status(f"Conteúdo do arquivo '{self.selected_file}' atualizado")
 
     def view_content(self):
+        """Abre uma janela para visualização do conteúdo do arquivo selecionado"""
+
         if not self.selected_file:
             messagebox.showerror("Erro", "Nenhum arquivo selecionado")
             return
-            
+        
+        # Obtém o diretório atual
         if self.current_path == "/":
             current_dir = self.fs.root
         else:
@@ -266,21 +325,24 @@ class NTFSJournalingSimulatorGUI:
         if not self.can_read_file(file):
             messagebox.showerror("Erro", "Você não tem permissão para visualizar este arquivo")
             return
-            
+
+        # Cria janela de visualização
         view_window = tk.Toplevel(self.root)
         view_window.title(f"Visualizando: {self.selected_file}")
         view_window.geometry("600x400")
         
         main_frame = ttk.Frame(view_window)
         main_frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
-        
+
+        # Área de texto somente leitura
         content_text = scrolledtext.ScrolledText(main_frame, wrap=tk.WORD, state=tk.DISABLED)
         content_text.pack(fill=tk.BOTH, expand=True)
         
         content_text.config(state=tk.NORMAL)
         content_text.insert(tk.END, file.content if file.content else "")
         content_text.config(state=tk.DISABLED)
-        
+
+        # Botão de fechar
         button_frame = ttk.Frame(main_frame)
         button_frame.pack(fill=tk.X, pady=5)
         
@@ -288,6 +350,8 @@ class NTFSJournalingSimulatorGUI:
                  command=view_window.destroy).pack(side=tk.RIGHT)
 
     def delete_item(self):
+        """Exclui o arquivo ou diretório selecionado"""
+
         selected = self.file_tree.focus()
         if not selected:
             return
@@ -299,6 +363,7 @@ class NTFSJournalingSimulatorGUI:
         if messagebox.askyesno("Confirmar", f"Tem certeza que deseja excluir {name}?"):
             path = f"{self.current_path.rstrip('/')}/{name}"
             if type_ == "Arquivo":
+                # Verifica permissões antes de excluir
                 if self.current_path == "/":
                     current_dir = self.fs.root
                 else:
@@ -316,6 +381,8 @@ class NTFSJournalingSimulatorGUI:
             self.update_journal()
 
     def apply_permission(self):
+        """Altera as permissões do arquivo selecionado"""
+
         if not self.selected_file:
             messagebox.showerror("Erro", "Nenhum arquivo selecionado")
             return
@@ -340,6 +407,8 @@ class NTFSJournalingSimulatorGUI:
             self.update_journal()
 
     def simulate_crash(self):
+        """Simula uma falha no sistema e recuperação usando o journal"""
+        
         if messagebox.askyesno("Simular Falha", "Tem certeza que deseja simular uma falha no sistema?"):
             self.fs.simulate_crash_and_recovery()
             self.update_file_list()

@@ -1,11 +1,27 @@
 from filesystem import FileSystem
 
 def interface():
+    """
+    Interface de linha de comando para o simulador de sistema de arquivos com journaling.
+    Oferece comandos interativos para manipulação do sistema de arquivos.
+    """
+
+    # Inicializa o sistema de arquivos e variáveis de estado
     fs = FileSystem()
-    current_path = "/root"
-    user = "admin"
+    current_path = "/root"  # Diretório atual
+    user = "admin"          # Usuário atual
 
     def normalize_path(path):
+        """
+        Normaliza um caminho relativo para absoluto baseado no diretório atual.
+        
+        Args:
+            path (str): Caminho a ser normalizado
+            
+        Returns:
+            str: Caminho absoluto normalizado
+        """
+        
         if path.startswith("/"):
             return path
         if current_path.endswith("/"):
@@ -14,19 +30,24 @@ def interface():
 
     print("Simulador de Sistema de Arquivos - Digite 'help' para ajuda.")
 
+    # Loop principal da interface
     while True:
+        # Prompt de comando personalizado
         cmd = input(f"{user}@simulador:{current_path}$ ").strip()
         if not cmd:
             continue
 
+        # Processa o comando
         parts = cmd.split()
         comando = parts[0].lower()
         args = parts[1:]
 
+        # Processa o comando
         if comando == "exit":
             print("Saindo do simulador...")
             break
 
+        # Comando help - Mostra ajuda
         elif comando == "help":
             print("""Comandos disponíveis:
 mkdir <nome_dir>         - Cria um diretório no caminho atual
@@ -44,6 +65,7 @@ help                     - Mostra esta ajuda
 exit                     - Sai do simulador
 """)
 
+        # Comando user - Altera o usuário atual
         elif comando == "user":
             if len(args) == 1:
                 user = args[0]
@@ -51,6 +73,7 @@ exit                     - Sai do simulador
             else:
                 print("Comando inválido.")
 
+        # Comando mkdir - Cria novo diretório
         elif comando == "mkdir":
             if len(args) == 1:
                 dir_path = normalize_path(args[0])
@@ -58,6 +81,7 @@ exit                     - Sai do simulador
             else:
                 print("Comando inválido.")
 
+        # Comando cd - Muda diretório atual
         elif comando == "cd":
             if len(args) == 1:
                 target_path = normalize_path(args[0])
@@ -68,9 +92,11 @@ exit                     - Sai do simulador
             else:
                 print("Comando inválido.")
 
+        # Comando ls - Lista conteúdo do diretório
         elif comando == "ls":
             fs.list_directory(current_path)
 
+        # Comando create - Cria novo arquivo
         elif comando == "create":
             if len(args) == 1:
                 file_path = normalize_path(args[0])
@@ -78,6 +104,7 @@ exit                     - Sai do simulador
             else:
                 print("Comando inválido.")
 
+        # Comando read - Lê conteúdo de arquivo
         elif comando == "read":
             if len(args) == 1:
                 file_path = normalize_path(args[0])
@@ -85,6 +112,7 @@ exit                     - Sai do simulador
             else:
                 print("Comando inválido.")
 
+        # Comando write - Escreve em arquivo
         elif comando == "write":
             if len(args) == 1:
                 file_path = normalize_path(args[0])
@@ -113,6 +141,7 @@ exit                     - Sai do simulador
             else:
                 print("Comando inválido.")
 
+        # Comando delete - Remove arquivo
         elif comando == "delete":
             if len(args) == 1:
                 file_path = normalize_path(args[0])
@@ -120,6 +149,7 @@ exit                     - Sai do simulador
             else:
                 print("Comando inválido.")
 
+        # Comando chmod - Altera permissões
         elif comando == "chmod":
             if len(args) == 3:
                 file_path = normalize_path(args[0])
@@ -127,6 +157,7 @@ exit                     - Sai do simulador
             else:
                 print("Comando inválido.")
 
+        # Comando journal - Mostra log de operações
         elif comando == "journal":
             if not fs.journal:
                 print("O journal está vazio.")
@@ -138,6 +169,7 @@ exit                     - Sai do simulador
                         content_preview = str(content_preview)[:20] + "..."
                     print(f"{i}. Ação: {entry.action}, Arquivo: {entry.target}, Usuário: {entry.user}, Conteúdo: {content_preview}")
 
+        # Comando crash - Simula falha e recuperação
         elif comando == "crash":
             try:
                 fs.simulate_crash_and_recovery()
@@ -145,7 +177,8 @@ exit                     - Sai do simulador
                 print("🔁 Sistema recuperado automaticamente com base no journal.")
             except Exception as e:
                 print(f"Erro na simulação de falha: {str(e)}")
-
+        
+        # Comando desconhecido
         else:
             print(f"Comando desconhecido: {comando}. Digite 'help' para ajuda.")
 
