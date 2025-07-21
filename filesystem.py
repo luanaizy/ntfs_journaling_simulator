@@ -116,7 +116,7 @@ class FileSystem:
         perm = file.get_permission(user)
         if perm in ['w', 'rw']:
             file.content += "\n" + additional_content
-            self.journal.append(JournalEntry('append', path, additional_content, user))
+            self.journal.append(JournalEntry('write', path, additional_content, user))
             print(f"[{user}] Conteúdo adicionado ao arquivo '{filename}'.")
         else:
             print(f"[{user}] Sem permissão para escrita.")
