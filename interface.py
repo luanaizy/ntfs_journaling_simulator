@@ -30,81 +30,82 @@ def interface():
         elif comando == "help":
             print("""Comandos disponíveis:
 mkdir <nome_dir>         - Cria um diretório no caminho atual
-cd <caminho>            - Navega para outro diretório
-ls                      - Lista arquivos e pastas no diretório atual
+cd <caminho>              - Navega para outro diretório
+ls                        - Lista arquivos e pastas no diretório atual
 create <nome_arquivo>    - Cria um arquivo vazio no diretório atual
 read <nome_arquivo>      - Mostra o conteúdo do arquivo
 write <nome_arquivo>     - Escreve conteúdo no arquivo
 delete <nome_arquivo>    - Deleta o arquivo
 chmod <arquivo> <usuario> <perm> - Ajusta permissões no arquivo
-journal                 - Exibe o conteúdo do journal (log) do sistema
+journal                  - Exibe o conteúdo do journal (log) do sistema
 user <nome_usuario>      - Altera o usuário ativo na sessão
-help                    - Mostra esta ajuda
-exit                    - Sai do simulador
-            """)
+crash                    - Simula falha e recuperação do sistema
+help                     - Mostra esta ajuda
+exit                     - Sai do simulador
+""")
 
         elif comando == "user":
-            if len(args) != 1:
-                print("Uso: user <nome_do_usuario>")
-                continue
-            user = args[0]
-            print(f"Usuário alterado para '{user}'")
+            if len(args) == 1:
+                user = args[0]
+                print(f"Usuário alterado para '{user}'")
+            else:
+                print("Comando inválido.")
 
         elif comando == "mkdir":
-            if len(args) != 1:
-                print("Uso: mkdir <nome_dir>")
-                continue
-            dir_path = normalize_path(args[0])
-            fs.create_directory(dir_path)
+            if len(args) == 1:
+                dir_path = normalize_path(args[0])
+                fs.create_directory(dir_path)
+            else:
+                print("Comando inválido.")
 
         elif comando == "cd":
-            if len(args) != 1:
-                print("Uso: cd <caminho>")
-                continue
-            target_path = normalize_path(args[0])
-            if fs.directory_exists(target_path):
-                current_path = target_path
+            if len(args) == 1:
+                target_path = normalize_path(args[0])
+                if fs.directory_exists(target_path):
+                    current_path = target_path
+                else:
+                    print(f"Diretório '{args[0]}' não encontrado.")
             else:
-                print(f"Diretório '{args[0]}' não encontrado.")
+                print("Comando inválido.")
 
         elif comando == "ls":
             fs.list_directory(current_path)
 
         elif comando == "create":
-            if len(args) != 1:
-                print("Uso: create <nome_arquivo>")
-                continue
-            file_path = normalize_path(args[0])
-            fs.create_file(file_path, content="", user=user)
+            if len(args) == 1:
+                file_path = normalize_path(args[0])
+                fs.create_file(file_path, content="", user=user)
+            else:
+                print("Comando inválido.")
 
         elif comando == "read":
-            if len(args) != 1:
-                print("Uso: read <nome_arquivo>")
-                continue
-            file_path = normalize_path(args[0])
-            fs.read_file(file_path, user=user)
+            if len(args) == 1:
+                file_path = normalize_path(args[0])
+                fs.read_file(file_path, user=user)
+            else:
+                print("Comando inválido.")
 
         elif comando == "write":
-            if len(args) != 1:
-                print("Uso: write <nome_arquivo>")
-                continue
-            file_path = normalize_path(args[0])
-            new_content = input("Novo conteúdo: ")
-            fs.write_file(file_path, new_content, user=user)
+            if len(args) == 1:
+                file_path = normalize_path(args[0])
+                new_content = input("Novo conteúdo: ")
+                fs.write_file(file_path, new_content, user=user)
+            else:
+                print("Comando inválido.")
 
         elif comando == "delete":
-            if len(args) != 1:
-                print("Uso: delete <nome_arquivo>")
-                continue
-            file_path = normalize_path(args[0])
-            fs.delete_file(file_path, user=user)
+            if len(args) == 1:
+                file_path = normalize_path(args[0])
+                fs.delete_file(file_path, user=user)
+            else:
+                print("Comando inválido.")
 
         elif comando == "chmod":
-            if len(args) != 3:
-                print("Uso: chmod <arquivo> <usuario> <perm>")
-                continue
-            file_path = normalize_path(args[0])
-            fs.set_file_permission(file_path, args[1], args[2], admin=user)
+            if len(args) == 3:
+                file_path = normalize_path(args[0])
+                fs.set_file_permission(file_path, args[1], args[2], admin=user)
+            else:
+                print("Comando inválido.")
 
         elif comando == "journal":
             if not fs.journal:
@@ -116,6 +117,14 @@ exit                    - Sai do simulador
                     if content_preview is not None and len(str(content_preview)) > 20:
                         content_preview = str(content_preview)[:20] + "..."
                     print(f"{i}. Ação: {entry.action}, Arquivo: {entry.target}, Usuário: {entry.user}, Conteúdo: {content_preview}")
+
+        elif comando == "crash":
+            try:
+                fs.simulate_crash_and_recovery()
+                print("💥 Falha simulada com sucesso!")
+                print("🔁 Sistema recuperado automaticamente com base no journal.")
+            except Exception as e:
+                print(f"Erro na simulação de falha: {str(e)}")
 
         else:
             print(f"Comando desconhecido: {comando}. Digite 'help' para ajuda.")

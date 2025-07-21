@@ -35,7 +35,7 @@ class Directory:
 
 class JournalEntry:
     def __init__(self, action, target, content=None, user=None):
-        self.action = action  # 'create', 'delete', 'write'
+        self.action = action  # 'create', 'delete', 'write', 'append'
         self.target = target  # path string
         self.content = content
         self.user = user
@@ -107,8 +107,21 @@ class FileSystem:
         else:
             print(f"[{user}] Sem permissão para escrita.")
 
+    def append_to_file(self, path, additional_content, user='root'):
+        parent_dir, filename = self._navigate_to_dir(path)
+        file = parent_dir.find_file(filename)
+        if not file:
+            print(f"Arquivo '{filename}' não encontrado.")
+            return
+        perm = file.get_permission(user)
+        if perm in ['w', 'rw']:
+            file.content += "\n" + additional_content
+            self.journal.append(JournalEntry('append', path, additional_content, user))
+            print(f"[{user}] Conteúdo adicionado ao arquivo '{filename}'.")
+        else:
+            print(f"[{user}] Sem permissão para escrita.")
+
     def set_file_permission(self, path, user_alvo, permission, admin='root'):
-        # Permite alterar permissões apenas se o usuário for "admin"
         if admin != 'admin':
             print(f"[{admin}] Sem permissão para alterar permissões.")
             return
@@ -163,6 +176,8 @@ class FileSystem:
                 self._replay_create(entry)
             elif entry.action == 'write':
                 self._replay_write(entry)
+            elif entry.action == 'append':
+                self._replay_append(entry)
             elif entry.action == 'delete':
                 self._replay_delete(entry)
         print("[RECUPERAÇÃO CONCLUÍDA]\n")
@@ -181,6 +196,13 @@ class FileSystem:
         if file:
             file.content = entry.content
             print(f"(Recuperado) Arquivo '{filename}' atualizado.")
+
+    def _replay_append(self, entry):
+        parent_dir, filename = self._navigate_to_dir(entry.target)
+        file = parent_dir.find_file(filename)
+        if file:
+            file.content += "\n" + entry.content
+            print(f"(Recuperado) Conteúdo adicionado ao arquivo '{filename}'.")
 
     def _replay_delete(self, entry):
         parent_dir, filename = self._navigate_to_dir(entry.target)
