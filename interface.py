@@ -34,7 +34,7 @@ cd <caminho>              - Navega para outro diretório
 ls                        - Lista arquivos e pastas no diretório atual
 create <nome_arquivo>    - Cria um arquivo vazio no diretório atual
 read <nome_arquivo>      - Mostra o conteúdo do arquivo
-write <nome_arquivo>     - Escreve conteúdo no arquivo
+write <nome_arquivo>     - Escreve ou adiciona conteúdo no arquivo
 delete <nome_arquivo>    - Deleta o arquivo
 chmod <arquivo> <usuario> <perm> - Ajusta permissões no arquivo
 journal                  - Exibe o conteúdo do journal (log) do sistema
@@ -88,8 +88,28 @@ exit                     - Sai do simulador
         elif comando == "write":
             if len(args) == 1:
                 file_path = normalize_path(args[0])
-                new_content = input("Novo conteúdo: ")
-                fs.write_file(file_path, new_content, user=user)
+                parent_dir, filename = fs._navigate_to_dir(file_path)
+                file = parent_dir.find_file(filename)
+
+                if not file:
+                    print(f"Arquivo '{filename}' não encontrado.")
+                    continue
+
+                current_content = file.content.strip()
+
+                if current_content:
+                    escolha = input("O arquivo já contém conteúdo. Deseja substituir (s) ou adicionar (a)? [s/a]: ").strip().lower()
+                    if escolha == "s":
+                        novo_conteudo = input("Novo conteúdo (será substituído): ")
+                        fs.write_file(file_path, novo_conteudo, user=user)
+                    elif escolha == "a":
+                        conteudo_adicional = input("Conteúdo a ser adicionado: ")
+                        fs.append_to_file(file_path, conteudo_adicional, user=user)
+                    else:
+                        print("Opção inválida. Use 's' para substituir ou 'a' para adicionar.")
+                else:
+                    novo_conteudo = input("Arquivo vazio. Digite o conteúdo: ")
+                    fs.write_file(file_path, novo_conteudo, user=user)
             else:
                 print("Comando inválido.")
 
