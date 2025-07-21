@@ -36,7 +36,7 @@ class Directory:
 class JournalEntry:
     def __init__(self, action, target, content=None, user=None):
         self.action = action  # 'create', 'delete', 'write', 'append'
-        self.target = target  # path string
+        self.target = target  
         self.content = content
         self.user = user
 
