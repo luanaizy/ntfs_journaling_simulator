@@ -1,46 +1,16 @@
-# ntfs_journaling_simulator
-Simulator made for final work of the subject of operating systems
+# SIMULADOR DE UM SISTEMA DE ARQUIVO NTFS
+Simulador feito para projeto final da disciplina de Sistemas Operacionais
 
-# To run
+EQUIPE:
+MARINA VASQUES RODRIGUES - 496500
+GISELE PONTES RIBEIRO - 493389
+GIULIA LACERDA MELO E SILVA - 535886
+JENNIFER GADELHA BARBOSA DE MENEZES - 536294
+LEONARDO DE FREITAS VASCONCELOS DOS SANTOS - 385200
+LUANA IZY VERAS TAVARES - 511888
 
-1. Na primeira vez que for mexer no projeto, rode no terminal dentro da pasta:
-
-   ```bash
-   python -m venv .venv
-   ```
-
-   Isso vai criar uma pasta chamada `.venv`.
-
-2. Para ativar o `.venv`, rode:
-
-   - Se estiver usando o **Git Bash**:
-
-     ```bash
-     source .venv/Scripts/activate
-     ```
-
-   - Se estiver usando o **CMD**:
-
-     ```cmd
-     .venv\Scripts\activate
-     ```
-
-   Faça isso **sempre que for mexer no projeto**, para usar as bibliotecas do ambiente virtual (`.venv`).
+# VIDEO DO FUNCIONAMENTO DO SISTEMA
+[![Assista ao vídeo](https://img.youtube.com/vi/uk2pqZeHQaQ/0.jpg)](https://youtu.be/uk2pqZeHQaQ)
 
 
-   Se estiver usando o VSCode, configure para **usar o ambiente virtual .venv que criou**, em vez do Python instalado no sistema:
-
-   - Pressione Ctrl + Shift + P para abrir a paleta de comandos.
-
-   - Digite e selecione: ">Python: Select Interpreter"
-
-   - Selecione o interpretador correspondente a .venv (algo como):
-    ```
-    .venv\Scripts\python.exe
-    ```
-
-3. Na primeira vez que for mexer no projeto, instale as bibliotecas necessárias no ambiente com:
-
-   ```bash
-   pip install -r requirements.txt
-   ```
+   
