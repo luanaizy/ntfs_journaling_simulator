@@ -9,8 +9,8 @@ JENNIFER GADELHA BARBOSA DE MENEZES - 536294
 LEONARDO DE FREITAS VASCONCELOS DOS SANTOS - 385200
 LUANA IZY VERAS TAVARES - 511888
 
-# VIDEO DO FUNCIONAMENTO DO SISTEMA
-[![Assista ao vídeo](https://img.youtube.com/vi/uk2pqZeHQaQ/0.jpg)](https://youtu.be/uk2pqZeHQaQ)
+VIDEO DO FUNCIONAMENTO DO SISTEMA
+[🎥 Assista ao vídeo de demonstração](https://youtu.be/uk2pqZeHQaQ)
 
 
    
